@@ -1,4 +1,4 @@
-﻿using System;
+﻿//using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CanhGac.Models;
 using PagedList.Core;
+using System;
 
 namespace CanhGac.Controllers
 {
@@ -26,12 +27,10 @@ namespace CanhGac.Controllers
             return View(await canhGacContext.ToListAsync());
         }
 
-        public IActionResult HocVienTheoDaiDoi(int? page, string? MaHV = "", string? TenHV = "", string? ChucVu = "", string? CapBac = "", int? solangac = null, string? Gioitinh = "", bool? gac = true, string? madaidoi = "")
+        public IActionResult HocVienTheoDaiDoi(int? page, string? MaHV = "", string? TenHV = "", string? ChucVu = "", string? CapBac = "", int? solangac = null, string? Gioitinh = "", bool? gac = null, string? madaidoi = "")
         {
-
             var pageNumber = page == null || page <= 0 ? 1 : page.Value;
             var pageSize = 10;
-
             IQueryable<HocVien> query = _context.HocViens.AsNoTracking()
                 .Include(h => h.MaCapBacNavigation)
                 .Include(h => h.MaChucVuNavigation)
@@ -53,7 +52,6 @@ namespace CanhGac.Controllers
             {
                 query = query.Where(x => x.MaChucVuNavigation.TenChucVu.Contains(ChucVu));
             }
-
             if (!string.IsNullOrEmpty(CapBac))
             {
                 query = query.Where(x => x.MaCapBac == CapBac);
@@ -66,12 +64,19 @@ namespace CanhGac.Controllers
             {
                 query = query.Where(x => x.SoLanGac == solangac);
             }
-            if ((bool)gac)
+            // Remove this condition to show all students regardless of Gac status
+            // if ((bool)gac)
+            // {
+            //     query = query.Where(x => x.Gac == gac);
+            // }
+
+            // Only apply the Gac filter if it's explicitly provided
+            if (gac != null)
             {
                 query = query.Where(x => x.Gac == gac);
             }
-            var lsProducts = query.OrderByDescending(x => x.MaHocVien).ToList();
 
+            var lsProducts = query.OrderByDescending(x => x.MaHocVien).ToList();
             PagedList<HocVien> models = new PagedList<HocVien>(lsProducts.AsQueryable(), pageNumber, pageSize);
             ViewBag.CurrentMaDaiDoi = madaidoi;
             ViewBag.CurrentPage = pageNumber;
@@ -84,23 +89,24 @@ namespace CanhGac.Controllers
             ViewBag.CurrentGioiTinh = Gioitinh;
             ViewData["GioiTinh"] = new SelectList(_context.HocViens, "GioiTinh", "GioiTinh", Gioitinh);
             ViewData["CapBac"] = new SelectList(_context.CapBacs, "MaCapBac", "TenCapBac", CapBac);
-            // Thiếu dấu "." ở đây.
             ViewData["DonVi"] = new SelectList(_context.DonVis, "MaDonVi", "TenDonVi", madaidoi);
-
             return View(models);
         }
 
-        public IActionResult Filtter(string? CapBac, string? TenHV, string? Gioitinh, string? madaidoi, string? MaHV)
+        public IActionResult Filtter(string? CapBac, string? TenHV, string? Gioitinh, string? madaidoi, string? MaHV, string? gacStatus)
         {
             var url = "/HocViens/HocVienTheoDaiDoi?";
+
             if (!string.IsNullOrEmpty(madaidoi))
             {
-                url += $"MaDaiDoi={madaidoi}&";
+                url += $"madaidoi={madaidoi}&";
             }
-            if (MaHV != null)
+
+            if (!string.IsNullOrEmpty(MaHV))
             {
                 url += $"MaHV={MaHV}&";
             }
+
             if (!string.IsNullOrEmpty(CapBac))
             {
                 url += $"CapBac={CapBac}&";
@@ -111,12 +117,25 @@ namespace CanhGac.Controllers
                 url += $"TenHV={TenHV}&";
             }
 
-            if (Gioitinh != null)
+            if (!string.IsNullOrEmpty(Gioitinh))
             {
-                url += $"GioiTinh={Gioitinh}&";
+                url += $"Gioitinh={Gioitinh}&";
             }
 
-            // Loại bỏ dấu '&' cuối cùng nếu có
+            // Xử lý trạng thái gác
+            if (!string.IsNullOrEmpty(gacStatus))
+            {
+                if (gacStatus == "1")
+                {
+                    url += "gac=true&";
+                }
+                else if (gacStatus == "0")
+                {
+                    url += "gac=false&";
+                }
+            }
+
+            // Loại bỏ dấu '&' cuối cùng
             if (url.EndsWith("&"))
             {
                 url = url.Substring(0, url.Length - 1);
@@ -128,13 +147,12 @@ namespace CanhGac.Controllers
 
 
         // GET: HocViens/Details/5
-        public async Task<IActionResult> Details(string id, int? page, string? MaHV, string? TenHV, string? CapBac, string? Gioitinh, string? madaidoi)
+        public async Task<IActionResult> Details(string id, int? page, string? MaHV, string? TenHV, string? CapBac, string? Gioitinh, string? madaidoi, bool? gac = null)
         {
             if (id == null || _context.HocViens == null)
             {
                 return NotFound();
             }
-
             var hocVien = await _context.HocViens
                 .Include(h => h.MaCapBacNavigation)
                 .Include(h => h.MaChucVuNavigation)
@@ -150,9 +168,9 @@ namespace CanhGac.Controllers
             ViewBag.CurrentTenHV = TenHV;
             ViewBag.CurrentCapbac = CapBac;
             ViewBag.CurrentGioiTinh = Gioitinh;
+            ViewBag.CurrentGac = gac;
             return View(hocVien);
         }
-
         // GET: HocViens/Create
         public IActionResult Create(int? page, string? MaHV, string? TenHV, string? CapBac, string? Gioitinh, string? madaidoi)
         {
