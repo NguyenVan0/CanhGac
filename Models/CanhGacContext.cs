@@ -27,19 +27,33 @@ public partial class CanhGacContext : DbContext
 
     public virtual DbSet<HocVien> HocViens { get; set; }
 
+    public virtual DbSet<KiemTraGac> KiemTraGacs { get; set; }
+
+    public virtual DbSet<LichSuNghiGac> LichSuNghiGacs { get; set; }
+
+    public virtual DbSet<NhatKyTruyCap> NhatKyTruyCaps { get; set; }
+
     public virtual DbSet<NhiemVu> NhiemVus { get; set; }
+
+    public virtual DbSet<PasswordHistory> PasswordHistories { get; set; }
 
     public virtual DbSet<Pcgac> Pcgacs { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
+    public virtual DbSet<SesionLog> SesionLogs { get; set; }
+
+    public virtual DbSet<SyQuanKiemTra> SyQuanKiemTras { get; set; }
+
     public virtual DbSet<ThongTinGac> ThongTinGacs { get; set; }
+
+    public virtual DbSet<ViPham> ViPhams { get; set; }
 
     public virtual DbSet<VongGac> VongGacs { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-DC9K0GM;Initial Catalog=Canh_gac;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-DC9K0GM;Database=Canh_gac;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -77,7 +91,7 @@ public partial class CanhGacContext : DbContext
 
         modelBuilder.Entity<CapBac>(entity =>
         {
-            entity.HasKey(e => e.MaCapBac).HasName("PK__CapBac__219088250CA93663");
+            entity.HasKey(e => e.MaCapBac).HasName("PK__CapBac__21908825D2DFFC70");
 
             entity.ToTable("CapBac");
 
@@ -90,7 +104,7 @@ public partial class CanhGacContext : DbContext
 
         modelBuilder.Entity<ChucVu>(entity =>
         {
-            entity.HasKey(e => e.MaChucVu).HasName("PK__ChucVu__D4639533B1E59DD0");
+            entity.HasKey(e => e.MaChucVu).HasName("PK__ChucVu__D4639533164955E6");
 
             entity.ToTable("ChucVu");
 
@@ -110,14 +124,13 @@ public partial class CanhGacContext : DbContext
             entity.Property(e => e.MaDonVi)
                 .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.MauSac).HasMaxLength(50);    
-            entity.Property(e => e.Gac).HasMaxLength(50);
+            entity.Property(e => e.MauSac).HasMaxLength(50);
             entity.Property(e => e.TenDonVi).HasMaxLength(50);
         });
 
         modelBuilder.Entity<HocVien>(entity =>
         {
-            entity.HasKey(e => e.MaHocVien).HasName("PK__HocVien__685B0E6A22C546ED");
+            entity.HasKey(e => e.MaHocVien).HasName("PK__HocVien__685B0E6A0785028D");
 
             entity.ToTable("HocVien");
 
@@ -125,6 +138,7 @@ public partial class CanhGacContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.GioiTinh).HasMaxLength(4);
+            entity.Property(e => e.LastModified).HasColumnType("datetime");
             entity.Property(e => e.MaCapBac)
                 .HasMaxLength(10)
                 .IsUnicode(false)
@@ -152,6 +166,81 @@ public partial class CanhGacContext : DbContext
                 .HasConstraintName("FK_HocVien_DonVi");
         });
 
+        modelBuilder.Entity<KiemTraGac>(entity =>
+        {
+            entity.HasKey(e => new { e.MaSqkt, e.Ngay });
+
+            entity.ToTable("KiemTraGac");
+
+            entity.Property(e => e.MaSqkt).HasColumnName("MaSQKT");
+            entity.Property(e => e.Ngay).HasColumnType("date");
+            entity.Property(e => e.TrangThai).HasMaxLength(200);
+
+            entity.HasOne(d => d.MaSqktNavigation).WithMany(p => p.KiemTraGacs)
+                .HasForeignKey(d => d.MaSqkt)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_KiemTraGac_SyQuanKiemTra");
+
+            entity.HasOne(d => d.MaViPhamNavigation).WithMany(p => p.KiemTraGacs)
+                .HasForeignKey(d => d.MaViPham)
+                .HasConstraintName("FK_KiemTraGac_ViPham");
+
+            entity.HasOne(d => d.NgayNavigation).WithMany(p => p.KiemTraGacs)
+                .HasForeignKey(d => d.Ngay)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_KiemTraGac_ThongTinGac");
+
+            entity.HasOne(d => d.NhiemVuHocVienNavigation).WithMany(p => p.KiemTraGacs)
+                .HasForeignKey(d => d.NhiemVuHocVien)
+                .HasConstraintName("FK_KiemTraGac_NhiemVu");
+        });
+
+        modelBuilder.Entity<LichSuNghiGac>(entity =>
+        {
+            entity.HasKey(e => e.MaNghiGac);
+
+            entity.ToTable("LichSuNghiGac");
+
+            entity.Property(e => e.MaNghiGac)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.MaHocVien)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.NgayBatDau).HasColumnType("date");
+            entity.Property(e => e.NgayKetThuc).HasColumnType("date");
+            entity.Property(e => e.NguoiCapNhat)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.SlgacBatDau).HasColumnName("SLGacBatDau");
+            entity.Property(e => e.SlgacKetThuc).HasColumnName("SLGacKetThuc");
+
+            entity.HasOne(d => d.MaHocVienNavigation).WithMany(p => p.LichSuNghiGacs)
+                .HasForeignKey(d => d.MaHocVien)
+                .HasConstraintName("FK_LichSuNghiGac_HocVien");
+        });
+
+        modelBuilder.Entity<NhatKyTruyCap>(entity =>
+        {
+            entity.ToTable("NhatKyTruyCap");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("ID");
+            entity.Property(e => e.AccountId).HasColumnName("AccountID");
+            entity.Property(e => e.Action).HasMaxLength(50);
+            entity.Property(e => e.Ipaddress)
+                .HasMaxLength(15)
+                .IsUnicode(false)
+                .HasColumnName("IPAddress");
+            entity.Property(e => e.TableAffected).HasMaxLength(50);
+            entity.Property(e => e.TimeStamp).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Account).WithMany(p => p.NhatKyTruyCaps)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_NhatKyTruyCap_Account");
+        });
+
         modelBuilder.Entity<NhiemVu>(entity =>
         {
             entity.HasKey(e => e.MaNhiemVu);
@@ -163,6 +252,24 @@ public partial class CanhGacContext : DbContext
             entity.HasOne(d => d.MaVongGacNavigation).WithMany(p => p.NhiemVus)
                 .HasForeignKey(d => d.MaVongGac)
                 .HasConstraintName("FK_NhiemVu_VongGac");
+        });
+
+        modelBuilder.Entity<PasswordHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_PasswordHistory_1");
+
+            entity.ToTable("PasswordHistory");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("ID");
+            entity.Property(e => e.AccountId).HasColumnName("AccountID");
+            entity.Property(e => e.ChangeDate).HasColumnType("datetime");
+            entity.Property(e => e.PasswordHash).HasMaxLength(50);
+
+            entity.HasOne(d => d.Account).WithMany(p => p.PasswordHistories)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_PasswordHistory_Account1");
         });
 
         modelBuilder.Entity<Pcgac>(entity =>
@@ -204,6 +311,41 @@ public partial class CanhGacContext : DbContext
             entity.Property(e => e.RoleName).HasMaxLength(50);
         });
 
+        modelBuilder.Entity<SesionLog>(entity =>
+        {
+            entity.HasKey(e => e.SessionId);
+
+            entity.ToTable("SesionLog");
+
+            entity.Property(e => e.SessionId)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("SessionID");
+            entity.Property(e => e.AccountId).HasColumnName("AccountID");
+            entity.Property(e => e.Ipaddress)
+                .HasMaxLength(15)
+                .IsUnicode(false)
+                .HasColumnName("IPAddress");
+            entity.Property(e => e.LoginTime).HasColumnType("datetime");
+            entity.Property(e => e.LogoutTime).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Account).WithMany(p => p.SesionLogs)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_SesionLog_Account");
+        });
+
+        modelBuilder.Entity<SyQuanKiemTra>(entity =>
+        {
+            entity.HasKey(e => e.MaSqkt);
+
+            entity.ToTable("SyQuanKiemTra");
+
+            entity.Property(e => e.MaSqkt)
+                .ValueGeneratedNever()
+                .HasColumnName("MaSQKT");
+            entity.Property(e => e.NghiepVu).HasMaxLength(50);
+        });
+
         modelBuilder.Entity<ThongTinGac>(entity =>
         {
             entity.HasKey(e => e.Ngay);
@@ -220,6 +362,16 @@ public partial class CanhGacContext : DbContext
             entity.HasOne(d => d.MaDonViNavigation).WithMany(p => p.ThongTinGacs)
                 .HasForeignKey(d => d.MaDonVi)
                 .HasConstraintName("FK_ThongTinGac_DonVi");
+        });
+
+        modelBuilder.Entity<ViPham>(entity =>
+        {
+            entity.HasKey(e => e.MaViPham);
+
+            entity.ToTable("ViPham");
+
+            entity.Property(e => e.MaViPham).ValueGeneratedNever();
+            entity.Property(e => e.TenViPham).HasMaxLength(50);
         });
 
         modelBuilder.Entity<VongGac>(entity =>

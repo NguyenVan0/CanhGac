@@ -10,9 +10,10 @@ public partial class DonVi
     public string TenDonVi { get; set; } = null!;
 
     public int? QuanSo { get; set; }
-    public bool? Gac { get; set; }
 
     public string? MauSac { get; set; }
+
+    public bool? Gac { get; set; }
 
     public virtual ICollection<HocVien> HocViens { get; set; } = new List<HocVien>();
 
