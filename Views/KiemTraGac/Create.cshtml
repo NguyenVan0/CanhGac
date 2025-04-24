@@ -1,29 +1,29 @@
-﻿@model CanhGac.Models.DonVi
+﻿@model CanhGac.Models.ViPham
 
 @{
-    ViewData["Title"] = "Thêm đơn vị";
+    ViewData["Title"] = "Thêm vi phạm";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="container mt-4">
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
-            <h4 class="mb-0"> Thêm Đơn Vị</h4>
+            <h4 class="mb-0"> Thêm vi phạm</h4>
         </div>
         <div class="card-body">
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="MaDonVi" class="form-label">Mã đơn vị</label>
-                    <input asp-for="MaDonVi" class="form-control" placeholder="Nhập mã đơn vị..." />
-                    <span asp-validation-for="MaDonVi" class="text-danger"></span>
+                    <label asp-for="MaViPham" class="form-label">Mã vi phạm</label>
+                    <input asp-for="MaViPham" class="form-control" placeholder="Nhập mã vi phạm..." />
+                    <span asp-validation-for="MaViPham" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-4">
-                    <label asp-for="TenDonVi" class="form-label">Tên đơn vị</label>
-                    <input asp-for="TenDonVi" class="form-control" placeholder="Nhập tên đơn vị..." />
-                    <span asp-validation-for="TenDonVi" class="text-danger"></span>
+                    <label asp-for="TenViPham" class="form-label">Tên vi phạm</label>
+                    <input asp-for="TenViPham" class="form-control" placeholder="Nhập tên vi phạm..." />
+                    <span asp-validation-for="TenViPham" class="text-danger"></span>
                 </div>
 
                 <div class="d-flex justify-content-between">
