@@ -34,7 +34,7 @@
                             <div class="d-md-flex">
                                 <div class="col-lg-1">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Tìm theo ID" id="searchId" value="@ViewBag.CurrentMaHV" />
+                                        <input type="text" class="form-control" placeholder="ID" id="searchId" value="@ViewBag.CurrentMaHV" />
                                     </div>
                                 </div>
                                 <div class="col-lg-2">
@@ -49,21 +49,24 @@
                                         <option value="Nữ">Nữ</option>
                                     </select>
                                 </div>
-                                <div class="col-lg-1 m-b-14 m-r-100">
-                                    <select class="custom-select" id="txtCB" name="txtCB" style="min-width: 100px" asp-items="ViewBag.CapBac">
-                                        <option selected value="">Cấp bậc</option>
-                                        <option value="">Chọn tất cả</option>
+
+                                <div class="m-b-14 m-r-10">
+                                    <select class="custom-select" id="txtGac" name="txtGac" style="min-width: 150px" value="@ViewBag.CurrentGac">
+                                        <option selected value="">Trạng thái gác</option>
+                                        <option value="1">Gác</option>
+                                        <option value="0">Nghỉ gác</option>
                                     </select>
                                 </div>
+
 
                                 <div class="col-lg-2">
                                     <div class="input-group-append">
                                         <button class="btn btn-outline-secondary" type="button" id="searchButton">Tìm kiếm</button>
                                     </div>
                                 </div>
-                                <div class="col-lg-5 text-right">
-                                    <a class="btn btn-primary" asp-controller="HocViens" asp-action="Create" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh"><i class="anticon anticon-plus-circle m-r-5"></i> <span>Thêm học viên</span></a>
-                                </div>
+                                @* <div class="col-lg-5 text-right"> *@
+                                @*     <a class="btn btn-primary" asp-controller="HocViens" asp-action="Create" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh"><i class="anticon anticon-plus-circle m-r-5"></i> <span>Thêm học viên</span></a> *@
+                                @* </div> *@
                             </div>
                         </div>
                     </div>
@@ -123,7 +126,7 @@
                                                     @item.GioiTinh
                                             </td>
                                             <td class="text-center">
-                                                    @(item.Gac.HasValue ? (item.Gac.Value ? "Có" : "Không") : string.Empty)
+                                                    @(item.Gac.HasValue ? (item.Gac.Value ? "Gác" : "Nghỉ gác") : string.Empty)
                                             </td>
 
                                             <td class="text-center">
@@ -231,57 +234,107 @@
 
 
     @section Scripts {
-        <script>
-            $(document).ready(function () {
-                // Xử lý sự kiện khi nút Tìm kiếm được nhấn
-                $('#searchButton').click(function () {
-                    var searchTen = $('#searchTen').val();
-                    var capBac = $('#txtCB').val();
-                    var MaID = $('#searchId').val();
-                    var gioiTinh = $('#txtGT').val();
-                    var maDaiDoi = '@ViewBag.MaDaiDoi'
-                    $.ajax({
-                        url: '/HocViens/Filtter',
-                        datatype: 'json',
-                        type: 'GET',
-                        data: {
-                            CapBac: capBac,
-                            MaHV: MaID,
-                            TenHV: searchTen,
-                            GioiTinh: gioiTinh,
-                            MaDaiDoi: maDaiDoi
-                        },
-                        async: true,
-                        success: function (results) {
-                            if (results.status == 'success') {
-                                window.location.href = results.redirectUrl;
-                            }
-                        },
-                        error: function (xhr) {
-                            alert('error');
-                        }
-                    });
-                });
+<script>
+$(document).ready(function () {
+// Thiết lập giá trị ban đầu cho các dropdown từ ViewBag (nếu có)
+if ('@ViewBag.CurrentGac' === 'True') {
+$('#txtGac').val('1');
+} else if ('@ViewBag.CurrentGac' === 'False') {
+$('#txtGac').val('0');
+}
+        // Thiết lập giá trị cho dropdown giới tính
+        if ('@ViewBag.CurrentGioiTinh') {
+            $('#txtGT').val('@ViewBag.CurrentGioiTinh');
+        }
 
-                // Hiển thị ảnh
-                $('.image-link').click(function () {
-                    var imageUrl = $(this).data('image-url');
-                    if (imageUrl) {
-                        var imageElement = $('<img>').attr('src', imageUrl).attr('alt', 'Hình ảnh sản phẩm');
-                        var modal = $('<div>').addClass('image-modal').append(imageElement);
-                        modal.appendTo('body');
+        // Thiết lập giá trị cho dropdown cấp bậc
+        if ('@ViewBag.CurrentCapbac') {
+            $('#txtCB').val('@ViewBag.CurrentCapbac');
+        }
 
-                        modal.click(function (e) {
-                            if (e.target === this) {
-                                modal.remove(); // Đóng modal khi người dùng nhấn vào nó
-                            }
-                        });
+        // Xử lý sự kiện khi nút Tìm kiếm được nhấn
+        $('#searchButton').click(function () {
+            var searchTen = $('#searchTen').val();
+            var capBac = $('#txtCB').val();
+            var MaID = $('#searchId').val();
+            var gioiTinh = $('#txtGT').val();
+            var maDaiDoi = '@ViewBag.MaDaiDoi';
+            var gacStatus = $('#txtGac').val();
+            
+            console.log("Đang tìm kiếm với các tham số:");
+            console.log("Tên HV: " + searchTen);
+            console.log("Cấp bậc: " + capBac);
+            console.log("Mã HV: " + MaID);
+            console.log("Giới tính: " + gioiTinh);
+            console.log("Mã đại đội: " + maDaiDoi);
+            console.log("Trạng thái gác: " + gacStatus);
+            
+            // Xây dựng URL với tất cả các tham số
+            var url = '/HocViens/HocVienTheoDaiDoi?';
+            
+            if (maDaiDoi) {
+                url += 'madaidoi=' + encodeURIComponent(maDaiDoi) + '&';
+            }
+            
+            if (MaID) {
+                url += 'MaHV=' + encodeURIComponent(MaID) + '&';
+            }
+            
+            if (searchTen) {
+                url += 'TenHV=' + encodeURIComponent(searchTen) + '&';
+            }
+            
+            if (capBac) {
+                url += 'CapBac=' + encodeURIComponent(capBac) + '&';
+            }
+            
+            if (gioiTinh) {
+                url += 'Gioitinh=' + encodeURIComponent(gioiTinh) + '&';
+            }
+            
+            if (gacStatus) {
+                if (gacStatus === '1') {
+                    url += 'gac=true&';
+                } else if (gacStatus === '0') {
+                    url += 'gac=false&';
+                }
+            }
+            
+            // Loại bỏ dấu & cuối cùng
+            if (url.endsWith('&')) {
+                url = url.substring(0, url.length - 1);
+            }
+            
+            console.log("Chuyển hướng đến: " + url);
+            window.location.href = url;
+        });
+
+        // Xử lý khi nhấn Enter trong ô tìm kiếm
+        $('#searchTen, #searchId').keypress(function(e) {
+            if (e.which == 13) { // Mã phím Enter
+                $('#searchButton').click();
+                return false; // Ngăn form submit
+            }
+        });
+
+        // Hiển thị ảnh
+        $('.image-link').click(function () {
+            var imageUrl = $(this).data('image-url');
+            if (imageUrl) {
+                var imageElement = $('<img>').attr('src', imageUrl).attr('alt', 'Hình ảnh học viên');
+                var modal = $('<div>').addClass('image-modal').append(imageElement);
+                modal.appendTo('body');
+                modal.click(function (e) {
+                    if (e.target === this) {
+                        modal.remove(); // Đóng modal khi người dùng nhấn vào nó
                     }
                 });
-                // Nhập số tiền
-            });
-        </script>
-    }
+            }
+        });
+    });
+</script>
+}
+
 
 
 
