@@ -8,6 +8,7 @@ using MyPhamCheilinus.Controllers;
 using MyPhamCheilinus.Infrastructure;
 using MyPhamCheilinus.ModelViews;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace MyPhamCheilinus.Controllers
@@ -98,6 +99,7 @@ namespace MyPhamCheilinus.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "Đại đội")]
         public IActionResult PhanCong(DateTime ngay)
         {
             try
@@ -117,6 +119,7 @@ namespace MyPhamCheilinus.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "Đại đội")]
         public IActionResult ThayTheHocVien(string maHocVienCu, DateTime ngay)
         {
             try
