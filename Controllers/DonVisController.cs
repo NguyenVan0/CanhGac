@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CanhGac.Models;
+using Microsoft.AspNetCore.Authorization;
 //using System.Web.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -63,6 +64,7 @@ namespace CanhGac.Controllers
        
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Tiểu đoàn")]
         public async Task<IActionResult> Create([Bind("MaDonVi,TenDonVi,QuanSo,MauSac")] DonVi donVi)
         {
             if (ModelState.IsValid)
@@ -75,6 +77,7 @@ namespace CanhGac.Controllers
         }
         [HttpPost]
         [HttpPost]
+        [Authorize(Roles = "Tiểu đoàn")]
         public IActionResult UpdateGac(string maDonVi, bool status)
         {
             var donVi = _context.DonVis.FirstOrDefault(d => d.MaDonVi == maDonVi);
@@ -90,6 +93,7 @@ namespace CanhGac.Controllers
 
 
         // GET: DonVis/Edit/5
+        [Authorize(Roles = "Tiểu đoàn")]
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null || _context.DonVis == null)
@@ -141,6 +145,7 @@ namespace CanhGac.Controllers
         }
 
         // GET: DonVis/Delete/5
+        [Authorize(Roles = "Tiểu đoàn")]
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null || _context.DonVis == null)

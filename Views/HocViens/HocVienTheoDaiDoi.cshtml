@@ -4,6 +4,14 @@
     ViewBag.MaDaiDoi = Model?.FirstOrDefault()?.MaDaiDoi;
     ViewData["Title"] = "HocVienTheoDaiDoi";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    bool isTieuDoan = User.IsInRole("Tiểu đoàn");
+    string tenDaiDoiCuaNguoiDung = User.Identity.Name; // Lấy tên đơn vị của người dùng đăng nhập
+    string tenDaiDoiHienTai = Model?.FirstOrDefault()?.MaDaiDoiNavigation?.TenDonVi;
+
+  
+    // Người dùng có quyền chỉnh sửa nếu là tiểu đoàn hoặc đang xem danh sách học viên của đại đội mình
+    bool coQuyenChinhSua = isTieuDoan || (tenDaiDoiCuaNguoiDung == tenDaiDoiHienTai);
 }
 <!DOCTYPE html>
 <html>
@@ -113,6 +121,7 @@
                                 {
                                     foreach (var item in Model)
                                     {
+                                        bool quanLyDuocHocVien = isTieuDoan || (item.MaDaiDoiNavigation?.TenDonVi == tenDaiDoiCuaNguoiDung);
                                         <tr>
                                             <td class="text-center">
                                                 @item.MaHocVien
@@ -143,10 +152,13 @@
                                             </td>
 
                                             <td>
-                                                <a asp-action="Edit" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-success btn-sm">Chỉnh sửa</a>
                                                 <a asp-action="Details" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-info btn-sm">Xem chi tiết</a>
-                                                <a asp-action="Delete" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-info btn-sm">Xóa</a>
 
+                                                    @if (quanLyDuocHocVien)
+                                                    {
+                                                    <a asp-action="Edit" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-success btn-sm">Chỉnh sửa</a>
+                                                    <a asp-action="Delete" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-danger btn-sm">Xóa</a>
+                                                    }
                                             </td>
                                         </tr>
                                     }

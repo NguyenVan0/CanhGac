@@ -5,6 +5,8 @@
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    bool isTieuDoan = User.IsInRole("Tiểu đoàn");
+
 }
 
 
@@ -164,7 +166,7 @@
 
 
 
-@section Scripts{
+@section Scripts {
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.print.min.css" rel="stylesheet" media="print" />
@@ -177,6 +179,7 @@
 
 
     <script>
+        var isTieuDoan = @Json.Serialize(isTieuDoan);
         $(document).ready(function () {
             $('#calendar').fullCalendar({
                 header: {
@@ -305,7 +308,7 @@
                                 '<td>Đại đội</td>' +
                                 '<td>' + event.title + '</td>' +
                                 '</tr>' +
-                                 '<tr>' +
+                                '<tr>' +
                                 '<td>Hỏi</td>' +
                                 '<td>' + event.hoi + '</td>' +
                                 '</tr>' +
@@ -315,10 +318,9 @@
                                 '</tr>' +
                                 '</table>' +
                                 '<div class="btn-group">' +
-                                '<button id="edit-button" class="btn btn-primary">Sửa</button>' +
-                                '<button id="delete-button" class="btn btn-danger">Xóa</button>' +
+                                (isTieuDoan ? '<button id="edit-button" class="btn btn-primary">Sửa</button>' +
+                                '<button id="delete-button" class="btn btn-danger">Xóa</button>' : '') +
                                 '<button id="lichgac-button" class="btn btn-success" data-ngay="' + moment(event.start).format('YYYY-MM-DD') + '">Lịch gác</button>' +
-
                                 '</div>'
                             );
 
@@ -344,7 +346,7 @@
 
                                         // Check if the event is today
                                         var isEditable = moment().isSame(event.start, 'day');
-                                 
+
 
                                         // Set disabled status and value for Hoi and Dap fields
                                         $('#edit-form').find('#EditHoi').prop('disabled', !isEditable).val(event.hoi);
@@ -427,7 +429,7 @@
             });
         });
     </script>
- 
+
     <script>
         var maPhanCongCounter = 1;
         var successMessageShown = false;
@@ -544,7 +546,7 @@
                         console.log(xhr.responseText);
                         successMessageShown = true;
                     }
-                  
+
                 }
             });
         }

@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    bool isTieuDoan = User.IsInRole("Tiểu đoàn");
 }
 
 <h1>DANH SÁCH CÁC ĐẠI ĐỘI:</h1>
@@ -29,31 +31,40 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
+        @foreach (var item in Model) {
+            <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.MaDonVi)
                 </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TenDonVi)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.QuanSo)
-            </td>
                 <td>
-                    <input type="checkbox"
-                    @(item.Gac == true ? "checked" : "")
-                           onclick="updateGac('@item.MaDonVi', this.checked)" />
-
+                    @Html.DisplayFor(modelItem => item.TenDonVi)
                 </td>
-
-            <td class="text-right">
-                    <a asp-action="Edit" asp-route-id="@item.MaDonVi"class="btn btn-primary btn-sm">Chỉnh sửa</a>
-                    <a asp-action="Details" asp-route-id="@item.MaDonVi"class="btn btn-info btn-sm">Xem chi tiết</a>
-                    <a asp-action="Delete" asp-route-id="@item.MaDonVi"class="btn btn-danger btn-sm">Xóa</a>
-
-            </td>
-        </tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.QuanSo)
+                </td>
+                <td>
+                    @if (isTieuDoan)
+                    {
+                        <input type="checkbox"
+                        @(item.Gac == true ? "checked" : "")
+                               onclick="updateGac('@item.MaDonVi', this.checked)" />
+                    }
+                    else
+                    {
+                        <input type="checkbox"
+                        @(item.Gac == true ? "checked" : "")
+                               disabled />
+                    }
+                </td>
+                <td class="text-right">
+                    <a asp-action="Details" asp-route-id="@item.MaDonVi" class="btn btn-info btn-sm">Xem chi tiết</a>
+                    @if (isTieuDoan)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.MaDonVi" class="btn btn-primary btn-sm">Chỉnh sửa</a>
+                        <a asp-action="Delete" asp-route-id="@item.MaDonVi" class="btn btn-danger btn-sm">Xóa</a>
+                    }
+                </td>
+            </tr>
 }
     </tbody>
 </table>
