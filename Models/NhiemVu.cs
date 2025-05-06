@@ -11,6 +11,8 @@ public partial class NhiemVu
 
     public int? MaVongGac { get; set; }
 
+    public virtual ICollection<KiemTraGac> KiemTraGacs { get; set; } = new List<KiemTraGac>();
+
     public virtual VongGac? MaVongGacNavigation { get; set; }
 
     public virtual ICollection<Pcgac> Pcgacs { get; set; } = new List<Pcgac>();

@@ -152,12 +152,24 @@
                                             </td>
 
                                             <td>
+                                                @* <a asp-action="Edit" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-success btn-sm">Chỉnh sửa</a> *@
                                                 <a asp-action="Details" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-info btn-sm">Xem chi tiết</a>
-
-                                                    @if (quanLyDuocHocVien)
+                                                @* <a asp-action="Delete" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-info btn-sm">Xóa</a> *@
+                                                    @if (item.Gac == true)
                                                     {
-                                                    <a asp-action="Edit" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-success btn-sm">Chỉnh sửa</a>
-                                                    <a asp-action="Delete" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-danger btn-sm">Xóa</a>
+                                                    <button type="button" class="btn btn-warning btn-sm btn-tam-nghi"
+                                                            data-mahocvien="@item.MaHocVien"
+                                                            data-tenhocvien="@item.TenHocVien">
+                                                        Tạm nghỉ gác
+                                                    </button>
+                                                    }
+                                                    else
+                                                    {
+                                                    <button type="button" class="btn btn-primary btn-sm btn-kich-hoat"
+                                                            data-mahocvien="@item.MaHocVien"
+                                                            data-tenhocvien="@item.TenHocVien">
+                                                        Kết thúc nghỉ gác
+                                                    </button>
                                                     }
                                             </td>
                                         </tr>
@@ -168,11 +180,11 @@
                         </table>
                         <div aria-label="Page navigation example" class="d-flex justify-content-center">
                             <ul class="pagination">
-                                <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
-                                    <a class="page-link" asp-action="HocVienTheoDaiDoi" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="1" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh"><<</a>
+                                <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                                    <a class="page-link" asp-action="HocVienTheoDaiDoi" asp-route-madaidoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@(Model.PageNumber + 1)" asp-route-MaHV="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-Gioitinh="@ViewBag.CurrentGioiTinh" asp-route-gac="@ViewBag.CurrentGac">></a>
                                 </li>
-                                <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
-                                    <a class="page-link" asp-action="HocVienTheoDaiDoi" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@(Model.PageNumber - 1)" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh"><</a>
+                                <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                                    <a class="page-link" asp-action="HocVienTheoDaiDoi" asp-route-madaidoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@Model.PageCount" asp-route-MaHV="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-Gioitinh="@ViewBag.CurrentGioiTinh" asp-route-gac="@ViewBag.CurrentGac">>></a>
                                 </li>
                                 @if (Model.PageCount <= 3)
                                 {
@@ -242,8 +254,78 @@
             </div>
         </div>
     </div>
+
+
+
+    <!-- Modal Tạm Nghỉ Gác -->
+    <div class="modal fade" id="tamNghiGacModal" tabindex="-1" role="dialog" aria-labelledby="tamNghiGacModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tamNghiGacModalLabel">Tạm nghỉ gác</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="tamNghiGacForm">
+                        <input type="hidden" id="nghiGacMaHocVien" name="MaHocVien" />
+
+                        <div class="form-group">
+                            <label for="nghiGacTenHocVien">Tên học viên:</label>
+                            <input type="text" class="form-control" id="nghiGacTenHocVien" readonly />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nghiGacNgayBatDau">Ngày bắt đầu nghỉ:</label>
+                            <input type="date" class="form-control" id="nghiGacNgayBatDau" name="NgayBatDau" required value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nghiGacLyDo">Lý do nghỉ gác:</label>
+                            <textarea class="form-control" id="nghiGacLyDo" name="LyDo" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveTamNghi">Xác nhận</button>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- Modal Kích Hoạt Gác -->
+    <div class="modal fade" id="kichHoatGacModal" tabindex="-1" role="dialog" aria-labelledby="kichHoatGacModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="kichHoatGacModalLabel">Kết thúc nghỉ gác</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="kichHoatGacForm">
+                        <input type="hidden" id="kichHoatMaHocVien" name="MaHocVien" />
+
+                        <div class="form-group">
+                            <label for="kichHoatTenHocVien">Tên học viên:</label>
+                            <input type="text" class="form-control" id="kichHoatTenHocVien" readonly />
+                        </div>
+
+                        <div class="alert alert-info">
+                            <strong>Lưu ý:</strong> Khi kích hoạt lại, số lần gác của học viên sẽ được reset theo số lần gác thấp nhất trong cùng đơn vị và giới tính.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-success" id="btnSaveKichHoat">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @section Scripts {
 <script>
@@ -343,6 +425,119 @@ $('#txtGac').val('0');
                 });
             }
         });
+
+
+
+                    // Xử lý nút tạm nghỉ gác
+                    $('.btn-tam-nghi').click(function() {
+                        var maHocVien = $(this).data('mahocvien');
+                        var tenHocVien = $(this).data('tenhocvien');
+
+                        $('#nghiGacMaHocVien').val(maHocVien);
+                        $('#nghiGacTenHocVien').val(tenHocVien);
+                        $('#nghiGacNgayBatDau').val(new Date().toISOString().split('T')[0]);
+                        $('#nghiGacLyDo').val('');
+
+                        $('#tamNghiGacModal').modal('show');
+                    });
+
+                    // Xử lý nút kích hoạt gác
+                    $('.btn-kich-hoat').click(function() {
+                        var maHocVien = $(this).data('mahocvien');
+                        var tenHocVien = $(this).data('tenhocvien');
+
+                        $('#kichHoatMaHocVien').val(maHocVien);
+                        $('#kichHoatTenHocVien').val(tenHocVien);
+
+                        $('#kichHoatGacModal').modal('show');
+                    });
+
+                    // Xử lý submit form tạm nghỉ gác
+                    $('#btnSaveTamNghi').click(function() {
+                        var form = $('#tamNghiGacForm');
+
+                        // Kiểm tra form
+                        if (!form[0].checkValidity()) {
+                            form.find(':submit').click();
+                            return;
+                        }
+
+                        // Lấy dữ liệu form
+                        var maHocVien = $('#nghiGacMaHocVien').val();
+                        var ngayBatDau = $('#nghiGacNgayBatDau').val();
+                        var lyDo = $('#nghiGacLyDo').val();
+
+                        // Gửi AJAX request
+                        $.ajax({
+                            url: '/HocViens/TamNghiGacAjax',
+                            type: 'POST',
+                            data: {
+                                MaHocVien: maHocVien,
+                                NgayBatDau: ngayBatDau,
+                                LyDo: lyDo,
+                                madaidoi: '@ViewBag.CurrentMaDaiDoi',
+                                page: '@ViewBag.CurrentPage',
+                                MaHV: '@ViewBag.CurrentMaHV',
+                                TenHV: '@ViewBag.CurrentTenHV',
+                                CapBac: '@ViewBag.CurrentCapbac',
+                                Gioitinh: '@ViewBag.CurrentGioiTinh'
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    // Đóng modal
+                                    $('#tamNghiGacModal').modal('hide');
+
+                                    // Thông báo thành công
+                                    alert('Đã cho học viên tạm nghỉ gác thành công!');
+
+                                    // Tải lại trang
+                                    location.reload();
+                                } else {
+                                    alert('Lỗi: ' + response.message);
+                                }
+                            },
+                            error: function() {
+                                alert('Đã xảy ra lỗi khi xử lý yêu cầu');
+                            }
+                        });
+                    });
+
+                    // Xử lý submit form kích hoạt gác
+                    $('#btnSaveKichHoat').click(function() {
+                        var maHocVien = $('#kichHoatMaHocVien').val();
+
+                        // Gửi AJAX request
+                        $.ajax({
+                            url: '/HocViens/KichHoatGacAjax',
+                            type: 'POST',
+                            data: {
+                                MaHocVien: maHocVien,
+                                madaidoi: '@ViewBag.CurrentMaDaiDoi',
+                                page: '@ViewBag.CurrentPage',
+                                MaHV: '@ViewBag.CurrentMaHV',
+                                TenHV: '@ViewBag.CurrentTenHV',
+                                CapBac: '@ViewBag.CurrentCapbac',
+                                Gioitinh: '@ViewBag.CurrentGioiTinh'
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    // Đóng modal
+                                    $('#kichHoatGacModal').modal('hide');
+
+                                    // Thông báo thành công
+                                    alert('Đã kích hoạt lại gác cho học viên thành công!');
+
+                                    // Tải lại trang
+                                    location.reload();
+                                } else {
+                                    alert('Lỗi: ' + response.message);
+                                }
+                            },
+                            error: function() {
+                                alert('Đã xảy ra lỗi khi xử lý yêu cầu');
+                            }
+                        });
+                    });
     });
 </script>
 }

@@ -23,6 +23,10 @@ public partial class HocVien
 
     public string? MaChucVu { get; set; }
 
+    public DateTime? LastModified { get; set; }
+
+    public virtual ICollection<LichSuNghiGac> LichSuNghiGacs { get; set; } = new List<LichSuNghiGac>();
+
     public virtual CapBac? MaCapBacNavigation { get; set; }
 
     public virtual ChucVu? MaChucVuNavigation { get; set; }

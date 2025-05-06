@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace CanhGac.Models;
 
-public partial class ViPham
+public partial class SyQuanKiemTra
 {
-    public int MaViPham { get; set; }
+    public int MaSqkt { get; set; }
 
-    public string? TenViPham { get; set; }
+    public string? NghiepVu { get; set; }
 
     public virtual ICollection<KiemTraGac> KiemTraGacs { get; set; } = new List<KiemTraGac>();
 }
