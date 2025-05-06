@@ -228,7 +228,7 @@ namespace CanhGac.Controllers
             ViewBag.CurrentMaHV = MaHV;
             ViewBag.CurrentTenHV = TenHV;
             ViewBag.CurrentCapbac = CapBac;
-  
+
             ViewBag.CurrentGioiTinh = Gioitinh;
             return View(hocVien);
         }
@@ -268,7 +268,7 @@ namespace CanhGac.Controllers
             ViewData["MaCapBac"] = new SelectList(_context.CapBacs, "MaCapBac", "MaCapBac", hocVien.MaCapBac);
             ViewData["MaChucVu"] = new SelectList(_context.ChucVus, "MaChucVu", "MaChucVu", hocVien.MaChucVu);
             ViewData["MaDaiDoi"] = new SelectList(_context.DonVis, "MaDonVi", "MaDonVi", hocVien.MaDaiDoi);
-   
+
             return View(hocVien);
         }
 
@@ -312,18 +312,53 @@ namespace CanhGac.Controllers
             {
                 _context.HocViens.Remove(hocVien);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction("HocVienTheoDaiDoi", new { page = page, MaHV = MaHV, TenHV = TenHV, Gioitinh = Gioitinh, CapBac = CapBac, madaidoi = madaidoi });
         }
 
         private bool HocVienExists(string id)
         {
-          return (_context.HocViens?.Any(e => e.MaHocVien == id)).GetValueOrDefault();
+            return (_context.HocViens?.Any(e => e.MaHocVien == id)).GetValueOrDefault();
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> ChiTietHocVienAjax(string MaHocVien)
+        {
+            try
+            {
+                var hocVien = await _context.HocViens
+                    .Include(h => h.MaCapBacNavigation)
+                    .Include(h => h.MaChucVuNavigation)
+                    .Include(h => h.MaDaiDoiNavigation)
+                    .FirstOrDefaultAsync(m => m.MaHocVien == MaHocVien);
 
+                if (hocVien == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy học viên" });
+                }
+
+                var data = new
+                {
+                    maHocVien = hocVien.MaHocVien,
+                    tenHocVien = hocVien.TenHocVien,
+                    ngaySinh = hocVien.NgaySinh?.ToString("dd/MM/yyyy"),
+                    gioiTinh = hocVien.GioiTinh,
+                    gac = hocVien.Gac ?? false,
+                    soLanGac = hocVien.SoLanGac,
+                    tenCapBac = hocVien.MaCapBacNavigation?.TenCapBac,
+                    tenChucVu = hocVien.MaChucVuNavigation?.TenChucVu,
+                    tenDaiDoi = hocVien.MaDaiDoiNavigation?.TenDonVi
+                };
+
+                return Json(new { success = true, data });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi lấy thông tin học viên: " + ex.Message });
+            }
+        }
 
 
         /////-----------------------------------CÀI ĐẶT NGHỈ GÁC -----------------------------------------------////
