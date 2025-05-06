@@ -38,7 +38,6 @@ public partial class CanhGacContext : DbContext
     public virtual DbSet<PasswordHistory> PasswordHistories { get; set; }
 
     public virtual DbSet<Pcgac> Pcgacs { get; set; }
-
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<SesionLog> SesionLogs { get; set; }
