@@ -4,6 +4,14 @@
     ViewBag.MaDaiDoi = Model?.FirstOrDefault()?.MaDaiDoi;
     ViewData["Title"] = "HocVienTheoDaiDoi";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    bool isTieuDoan = User.IsInRole("Tiểu đoàn");
+    string tenDaiDoiCuaNguoiDung = User.Identity.Name; // Lấy tên đơn vị của người dùng đăng nhập
+    string tenDaiDoiHienTai = Model?.FirstOrDefault()?.MaDaiDoiNavigation?.TenDonVi;
+
+  
+    // Người dùng có quyền chỉnh sửa nếu là tiểu đoàn hoặc đang xem danh sách học viên của đại đội mình
+    bool coQuyenChinhSua = isTieuDoan || (tenDaiDoiCuaNguoiDung == tenDaiDoiHienTai);
 }
 <!DOCTYPE html>
 <html>
@@ -113,6 +121,7 @@
                                 {
                                     foreach (var item in Model)
                                     {
+                                        bool quanLyDuocHocVien = isTieuDoan || (item.MaDaiDoiNavigation?.TenDonVi == tenDaiDoiCuaNguoiDung);
                                         <tr>
                                             <td class="text-center">
                                                 @item.MaHocVien

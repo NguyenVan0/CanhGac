@@ -22,7 +22,7 @@ public partial class CanhGacContext : DbContext
     public virtual DbSet<CapBac> CapBacs { get; set; }
 
     public virtual DbSet<ChucVu> ChucVus { get; set; }
-
+    public virtual DbSet<ViPham> ViPhams { get; set; }
     public virtual DbSet<DonVi> DonVis { get; set; }
 
     public virtual DbSet<HocVien> HocViens { get; set; }
@@ -47,13 +47,12 @@ public partial class CanhGacContext : DbContext
 
     public virtual DbSet<ThongTinGac> ThongTinGacs { get; set; }
 
-    public virtual DbSet<ViPham> ViPhams { get; set; }
 
     public virtual DbSet<VongGac> VongGacs { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=DESKTOP-DC9K0GM;Database=Canh_gac;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True");
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -113,6 +112,18 @@ public partial class CanhGacContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.TenChucVu).HasMaxLength(50);
+        });
+        modelBuilder.Entity<ViPham>(entity =>
+        {
+            entity.HasKey(e => e.MaViPham).HasName("PK__ViPham__D4639533B1E59DD0");
+
+            entity.ToTable("ViPham");
+
+            entity.Property(e => e.MaViPham)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.TenViPham).HasMaxLength(50);
         });
 
         modelBuilder.Entity<DonVi>(entity =>

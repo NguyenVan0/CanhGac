@@ -1,0 +1,33 @@
+﻿@model CanhGac.Models.ViPham
+
+@{
+    ViewData["Title"] = "Chi tiết vi phạm";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0"><i class="fas fa-info-circle"></i> Thông tin chi tiết vi phạm</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3 text-end">Tên vi phạm:</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.TenViPham)</dd>
+
+            </dl>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.MaViPham" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Chỉnh sửa
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,25 +1,25 @@
-﻿@model CanhGac.Models.DonVi
+﻿@model CanhGac.Models.ViPham
 
 @{
-    ViewData["Title"] = "Chỉnh sửa đơn vị";
+    ViewData["Title"] = "Chỉnh sửa vi phạm";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="container mt-4">
     <div class="card shadow-sm border-0">
         <div class="card-header bg-warning text-dark">
-            <h4 class="mb-0"><i class="fas fa-edit"></i> Chỉnh sửa thông tin đơn vị</h4>
+            <h4 class="mb-0"><i class="fas fa-edit"></i> Chỉnh sửa thông tin vi phạm</h4>
         </div>
         <div class="card-body">
             <form asp-action="Edit">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-                <input type="hidden" asp-for="MaDonVi" />
+                <input type="hidden" asp-for="MaViPham" />
 
                 <div class="form-group mb-3">
-                    <label asp-for="TenDonVi" class="form-label">Tên đơn vị</label>
-                    <input asp-for="TenDonVi" class="form-control" placeholder="Nhập tên đơn vị..." />
-                    <span asp-validation-for="TenDonVi" class="text-danger"></span>
+                    <label asp-for="TenViPham" class="form-label">Tên vi phạm</label>
+                    <input asp-for="TenViPham" class="form-control" placeholder="Nhập tên vi phạm..." />
+                    <span asp-validation-for="TenViPham" class="text-danger"></span>
                 </div>
 
                 <div class="d-flex justify-content-between">
