@@ -23,5 +23,13 @@ public partial class Account
 
     public string? Salt { get; set; }
 
+    public bool? IsActive { get; set; }
+
+    public virtual ICollection<NhatKyTruyCap> NhatKyTruyCaps { get; set; } = new List<NhatKyTruyCap>();
+
+    public virtual ICollection<PasswordHistory> PasswordHistories { get; set; } = new List<PasswordHistory>();
+
     public virtual Role? Role { get; set; }
+
+    public virtual ICollection<SesionLog> SesionLogs { get; set; } = new List<SesionLog>();
 }

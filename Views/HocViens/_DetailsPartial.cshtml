@@ -1,0 +1,48 @@
+﻿@model CanhGac.Models.HocVien
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="font-weight-bold">Mã học viên:</label>
+                <p>@Model.MaHocVien</p>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Tên học viên:</label>
+                <p>@Model.TenHocVien</p>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Ngày sinh:</label>
+                <p>@(Model.NgaySinh.HasValue ? Model.NgaySinh.Value.Date.ToShortDateString() : "")</p>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Giới tính:</label>
+                <p>@Model.GioiTinh</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="font-weight-bold">Đơn vị:</label>
+                <p>@(Model.MaDaiDoiNavigation != null ? Model.MaDaiDoiNavigation.TenDonVi : "")</p>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Cấp bậc:</label>
+                <p>@(Model.MaCapBacNavigation != null ? Model.MaCapBacNavigation.TenCapBac : "")</p>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Chức vụ:</label>
+                <p>@(Model.MaChucVuNavigation != null ? Model.MaChucVuNavigation.TenChucVu : "")</p>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Trạng thái gác:</label>
+                <p>@(Model.Gac.HasValue ? (Model.Gac.Value ? "Gác" : "Nghỉ gác") : "")</p>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Số lần gác:</label>
+                <p>@Model.SoLanGac</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thêm các thông tin khác nếu cần -->
+</div>

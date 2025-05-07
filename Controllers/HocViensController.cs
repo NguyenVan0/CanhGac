@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CanhGac.Models;
 using PagedList.Core;
 using System;
+using CanhGac.ModelViews;
 
 namespace CanhGac.Controllers
 {
@@ -227,7 +228,7 @@ namespace CanhGac.Controllers
             ViewBag.CurrentMaHV = MaHV;
             ViewBag.CurrentTenHV = TenHV;
             ViewBag.CurrentCapbac = CapBac;
-  
+
             ViewBag.CurrentGioiTinh = Gioitinh;
             return View(hocVien);
         }
@@ -267,7 +268,7 @@ namespace CanhGac.Controllers
             ViewData["MaCapBac"] = new SelectList(_context.CapBacs, "MaCapBac", "MaCapBac", hocVien.MaCapBac);
             ViewData["MaChucVu"] = new SelectList(_context.ChucVus, "MaChucVu", "MaChucVu", hocVien.MaChucVu);
             ViewData["MaDaiDoi"] = new SelectList(_context.DonVis, "MaDonVi", "MaDonVi", hocVien.MaDaiDoi);
-   
+
             return View(hocVien);
         }
 
@@ -311,14 +312,457 @@ namespace CanhGac.Controllers
             {
                 _context.HocViens.Remove(hocVien);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction("HocVienTheoDaiDoi", new { page = page, MaHV = MaHV, TenHV = TenHV, Gioitinh = Gioitinh, CapBac = CapBac, madaidoi = madaidoi });
         }
 
         private bool HocVienExists(string id)
         {
-          return (_context.HocViens?.Any(e => e.MaHocVien == id)).GetValueOrDefault();
+            return (_context.HocViens?.Any(e => e.MaHocVien == id)).GetValueOrDefault();
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ChiTietHocVienAjax(string MaHocVien)
+        {
+            try
+            {
+                var hocVien = await _context.HocViens
+                    .Include(h => h.MaCapBacNavigation)
+                    .Include(h => h.MaChucVuNavigation)
+                    .Include(h => h.MaDaiDoiNavigation)
+                    .FirstOrDefaultAsync(m => m.MaHocVien == MaHocVien);
+
+                if (hocVien == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy học viên" });
+                }
+
+                var data = new
+                {
+                    maHocVien = hocVien.MaHocVien,
+                    tenHocVien = hocVien.TenHocVien,
+                    ngaySinh = hocVien.NgaySinh?.ToString("dd/MM/yyyy"),
+                    gioiTinh = hocVien.GioiTinh,
+                    gac = hocVien.Gac ?? false,
+                    soLanGac = hocVien.SoLanGac,
+                    tenCapBac = hocVien.MaCapBacNavigation?.TenCapBac,
+                    tenChucVu = hocVien.MaChucVuNavigation?.TenChucVu,
+                    tenDaiDoi = hocVien.MaDaiDoiNavigation?.TenDonVi
+                };
+
+                return Json(new { success = true, data });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi lấy thông tin học viên: " + ex.Message });
+            }
+        }
+
+
+        /////-----------------------------------CÀI ĐẶT NGHỈ GÁC -----------------------------------------------////
+        ///
+        // GET: HocViens/TamNghiGac/5
+        public async Task<IActionResult> TamNghiGac(string id, int? page, string? MaHV, string? TenHV, string? CapBac, string? Gioitinh, string? madaidoi)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
+            var hocVien = await _context.HocViens
+                .Include(h => h.MaDaiDoiNavigation)
+                .FirstOrDefaultAsync(m => m.MaHocVien == id);
+
+            if (hocVien == null)
+            {
+                return NotFound();
+            }
+
+            // Kiểm tra xem học viên có đang gác không
+            if (hocVien.Gac != true)
+            {
+                TempData["ErrorMessage"] = "Học viên này hiện không trong trạng thái gác!";
+                return RedirectToAction("HocVienTheoDaiDoi", new { page = page, MaHV = MaHV, TenHV = TenHV, Gioitinh = Gioitinh, CapBac = CapBac, madaidoi = madaidoi });
+            }
+
+            ViewBag.CurrentMaDaiDoi = madaidoi;
+            ViewBag.CurrentPage = page;
+            ViewBag.CurrentMaHV = MaHV;
+            ViewBag.CurrentTenHV = TenHV;
+            ViewBag.CurrentCapbac = CapBac;
+            ViewBag.CurrentGioiTinh = Gioitinh;
+
+            var model = new TamNghiGacViewModel
+            {
+                MaHocVien = hocVien.MaHocVien,
+                TenHocVien = hocVien.TenHocVien,
+                MaDonVi = hocVien.MaDaiDoi,
+                TenDonVi = hocVien.MaDaiDoiNavigation?.TenDonVi,
+                GioiTinh = hocVien.GioiTinh,
+                SoLanGac = hocVien.SoLanGac,
+                NgayBatDau = DateTime.Now
+            };
+
+            return View(model);
+        }
+
+        // POST: HocViens/TamNghiGac/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TamNghiGac(TamNghiGacViewModel model, int? page, string? MaHV, string? TenHV, string? CapBac, string? Gioitinh, string? madaidoi)
+        {
+            if (ModelState.IsValid)
+            {
+                using (var transaction = _context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        // Cập nhật trạng thái Gac = 0 cho học viên
+                        var hocVien = await _context.HocViens.FindAsync(model.MaHocVien);
+                        if (hocVien == null)
+                        {
+                            return NotFound();
+                        }
+
+                        // Lưu số lần gác hiện tạilichSuNghiGac.SlgacBatDau
+                        var soLanGacHienTai = hocVien.SoLanGac;
+
+                        // Cập nhật trạng thái gác
+                        hocVien.Gac = false;
+                        hocVien.LastModified = DateTime.Now;
+                        _context.Update(hocVien);
+                        await _context.SaveChangesAsync();
+
+                        // Tạo bản ghi lịch sử nghỉ gác
+                        var lichSuNghiGac = new LichSuNghiGac
+                        {
+                            MaHocVien = model.MaHocVien,
+                            NgayBatDau = model.NgayBatDau,
+                            NgayKetThuc = null,
+                            SlgacBatDau = soLanGacHienTai ?? 0,
+                            SlgacKetThuc = null,
+                            LyDo = model.LyDo,
+                            NguoiCapNhat = User.Identity?.Name ?? "admin" // Hoặc lấy từ hệ thống xác thực
+                        };
+
+                        _context.LichSuNghiGacs.Add(lichSuNghiGac);
+                        await _context.SaveChangesAsync();
+
+                        transaction.Commit();
+
+                        TempData["SuccessMessage"] = "Đã cho học viên tạm nghỉ gác thành công!";
+                        return RedirectToAction("HocVienTheoDaiDoi", new { page = page, MaHV = MaHV, TenHV = TenHV, Gioitinh = Gioitinh, CapBac = CapBac, madaidoi = madaidoi });
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        ModelState.AddModelError("", "Lỗi khi lưu dữ liệu: " + ex.Message);
+                    }
+                }
+            }
+
+            ViewBag.CurrentMaDaiDoi = madaidoi;
+            ViewBag.CurrentPage = page;
+            ViewBag.CurrentMaHV = MaHV;
+            ViewBag.CurrentTenHV = TenHV;
+            ViewBag.CurrentCapbac = CapBac;
+            ViewBag.CurrentGioiTinh = Gioitinh;
+
+            return View(model);
+        }
+
+        // GET: HocViens/KichHoatGac/5
+        public async Task<IActionResult> KichHoatGac(string id, int? page, string? MaHV, string? TenHV, string? CapBac, string? Gioitinh, string? madaidoi)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
+            var hocVien = await _context.HocViens
+                .Include(h => h.MaDaiDoiNavigation)
+                .FirstOrDefaultAsync(m => m.MaHocVien == id);
+
+            if (hocVien == null)
+            {
+                return NotFound();
+            }
+
+            // Kiểm tra xem học viên có đang trong trạng thái nghỉ gác không
+            if (hocVien.Gac == true)
+            {
+                TempData["ErrorMessage"] = "Học viên này hiện đã trong trạng thái gác!";
+                return RedirectToAction("HocVienTheoDaiDoi", new { page = page, MaHV = MaHV, TenHV = TenHV, Gioitinh = Gioitinh, CapBac = CapBac, madaidoi = madaidoi });
+            }
+
+            // Tìm bản ghi lịch sử nghỉ gác đang mở
+            var lichSuNghiGac = await _context.LichSuNghiGacs
+                .Where(ls => ls.MaHocVien == id && ls.NgayKetThuc == null)
+                .OrderByDescending(ls => ls.NgayBatDau)
+                .FirstOrDefaultAsync();
+
+            if (lichSuNghiGac == null)
+            {
+                // Có thể tạo bản ghi mới nếu cần
+                TempData["WarningMessage"] = "Không tìm thấy bản ghi nghỉ gác cho học viên này. Sẽ tạo bản ghi mới.";
+            }
+
+            ViewBag.CurrentMaDaiDoi = madaidoi;
+            ViewBag.CurrentPage = page;
+            ViewBag.CurrentMaHV = MaHV;
+            ViewBag.CurrentTenHV = TenHV;
+            ViewBag.CurrentCapbac = CapBac;
+            ViewBag.CurrentGioiTinh = Gioitinh;
+
+            var model = new KichHoatGacViewModel
+            {
+                MaHocVien = hocVien.MaHocVien,
+                TenHocVien = hocVien.TenHocVien,
+                NgayBatDau = lichSuNghiGac?.NgayBatDau ?? DateTime.Now.AddDays(-30),
+                SoLanGacBatDau = lichSuNghiGac?.SlgacBatDau ?? 0
+            };
+
+            return View(model);
+        }
+
+        // POST: HocViens/KichHoatGac/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> KichHoatGac(KichHoatGacViewModel model, int? page, string? MaHV, string? TenHV, string? CapBac, string? Gioitinh, string? madaidoi)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Lấy thông tin về đơn vị và giới tính của học viên
+                    var hocVien = await _context.HocViens.FindAsync(model.MaHocVien);
+                    if (hocVien == null)
+                    {
+                        return NotFound();
+                    }
+
+                    string maDonVi = hocVien.MaDaiDoi;
+                    string gioiTinh = hocVien.GioiTinh;
+
+                    // Tìm số lần gác thấp nhất trong cùng đơn vị và giới tính
+                    var soLanGacMoi = await _context.HocViens
+                        .Where(h => h.MaDaiDoi == maDonVi && h.GioiTinh == gioiTinh && h.Gac == true)
+                        .MinAsync(h => (int?)h.SoLanGac) ?? 0;
+
+                    using (var transaction = _context.Database.BeginTransaction())
+                    {
+                        try
+                        {
+                            // Cập nhật trạng thái gác và số lần gác của học viên
+                            hocVien.Gac = true;
+                            hocVien.SoLanGac = soLanGacMoi;
+                            hocVien.LastModified = DateTime.Now;
+                            _context.Update(hocVien);
+                            await _context.SaveChangesAsync();
+
+                            // Cập nhật bảng lịch sử nghỉ gác
+                            var lichSuNghiGac = await _context.LichSuNghiGacs
+                                .Where(ls => ls.MaHocVien == model.MaHocVien && ls.NgayKetThuc == null)
+                                .OrderByDescending(ls => ls.NgayBatDau)
+                                .FirstOrDefaultAsync();
+
+                            if (lichSuNghiGac != null)
+                            {
+                                lichSuNghiGac.NgayKetThuc = DateTime.Now;
+                                lichSuNghiGac.SlgacKetThuc = soLanGacMoi;
+                                lichSuNghiGac.NguoiCapNhat = User.Identity?.Name ?? "admin";
+                                _context.Update(lichSuNghiGac);
+                                await _context.SaveChangesAsync();
+                            }
+                            else
+                            {
+                                // Tạo bản ghi mới nếu không tìm thấy
+                                var newLichSu = new LichSuNghiGac
+                                {
+                                    MaHocVien = model.MaHocVien,
+                                    NgayBatDau = model.NgayBatDau,
+                                    NgayKetThuc = DateTime.Now,
+                                    SlgacBatDau = model.SoLanGacBatDau,
+                                    SlgacKetThuc = soLanGacMoi,
+                                    LyDo = "Kích hoạt lại tự động",
+                                    NguoiCapNhat = User.Identity?.Name ?? "admin"
+                                };
+
+                                _context.Add(newLichSu);
+                                await _context.SaveChangesAsync();
+                            }
+
+                            transaction.Commit();
+
+                            TempData["SuccessMessage"] = "Đã kích hoạt lại gác cho học viên thành công!";
+                            return RedirectToAction("HocVienTheoDaiDoi", new { page = page, MaHV = MaHV, TenHV = TenHV, Gioitinh = Gioitinh, CapBac = CapBac, madaidoi = madaidoi });
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            ModelState.AddModelError("", "Lỗi khi lưu dữ liệu: " + ex.Message);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Lỗi khi kích hoạt lại: " + ex.Message);
+                }
+            }
+
+            ViewBag.CurrentMaDaiDoi = madaidoi;
+            ViewBag.CurrentPage = page;
+            ViewBag.CurrentMaHV = MaHV;
+            ViewBag.CurrentTenHV = TenHV;
+            ViewBag.CurrentCapbac = CapBac;
+            ViewBag.CurrentGioiTinh = Gioitinh;
+
+            return View(model);
+        }
+
+
+        // POST: HocViens/TamNghiGacAjax
+        [HttpPost]
+        public async Task<IActionResult> TamNghiGacAjax(string MaHocVien, DateTime NgayBatDau, string LyDo, int? page, string? MaHV, string? TenHV, string? CapBac, string? Gioitinh, string? madaidoi)
+        {
+            try
+            {
+                // Cập nhật trạng thái Gac = 0 cho học viên
+                var hocVien = await _context.HocViens.FindAsync(MaHocVien);
+                if (hocVien == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy học viên" });
+                }
+
+                // Lưu số lần gác hiện tại
+                var soLanGacHienTai = hocVien.SoLanGac;
+
+                using (var transaction = _context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        // Cập nhật trạng thái gác
+                        hocVien.Gac = false;
+                        hocVien.LastModified = DateTime.Now;
+                        _context.Update(hocVien);
+                        await _context.SaveChangesAsync();
+
+                        // Tạo bản ghi lịch sử nghỉ gác
+                        var lichSuNghiGac = new LichSuNghiGac
+                        {
+                            MaNghiGac = Guid.NewGuid().ToString(),
+                            MaHocVien = MaHocVien,
+                            NgayBatDau = NgayBatDau,
+                            NgayKetThuc = null,
+                            SlgacBatDau = soLanGacHienTai ?? 0,
+                            SlgacKetThuc = null,
+                            LyDo = LyDo,
+                            NguoiCapNhat = User.Identity?.Name ?? "admin"
+                        };
+
+                        _context.LichSuNghiGacs.Add(lichSuNghiGac);
+                        await _context.SaveChangesAsync();
+
+                        transaction.Commit();
+
+                        return Json(new { success = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        return Json(new { success = false, message = ex.Message });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // POST: HocViens/KichHoatGacAjax
+        [HttpPost]
+        public async Task<IActionResult> KichHoatGacAjax(string MaHocVien, int? page, string? MaHV, string? TenHV, string? CapBac, string? Gioitinh, string? madaidoi)
+        {
+            try
+            {
+                // Lấy thông tin về đơn vị và giới tính của học viên
+                var hocVien = await _context.HocViens.FindAsync(MaHocVien);
+                if (hocVien == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy học viên" });
+                }
+
+                string maDonVi = hocVien.MaDaiDoi;
+                string gioiTinh = hocVien.GioiTinh;
+
+                // Tìm số lần gác thấp nhất trong cùng đơn vị và giới tính
+                var soLanGacMoi = await _context.HocViens
+                    .Where(h => h.MaDaiDoi == maDonVi && h.GioiTinh == gioiTinh && h.Gac == true)
+                    .MinAsync(h => (int?)h.SoLanGac) ?? 0;
+
+                using (var transaction = _context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        // Cập nhật trạng thái gác và số lần gác của học viên
+                        hocVien.Gac = true;
+                        hocVien.SoLanGac = soLanGacMoi;
+                        hocVien.LastModified = DateTime.Now;
+                        _context.Update(hocVien);
+                        await _context.SaveChangesAsync();
+
+                        // Cập nhật bảng lịch sử nghỉ gác
+                        var lichSuNghiGac = await _context.LichSuNghiGacs
+                            .Where(ls => ls.MaHocVien == MaHocVien && ls.NgayKetThuc == null)
+                            .OrderByDescending(ls => ls.NgayBatDau)
+                            .FirstOrDefaultAsync();
+
+                        if (lichSuNghiGac != null)
+                        {
+                            lichSuNghiGac.NgayKetThuc = DateTime.Now;
+                            lichSuNghiGac.SlgacKetThuc = soLanGacMoi;
+                            lichSuNghiGac.NguoiCapNhat = User.Identity?.Name ?? "admin";
+                            _context.Update(lichSuNghiGac);
+                            await _context.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            // Tạo bản ghi mới nếu không tìm thấy
+                            var newLichSu = new LichSuNghiGac
+                            {
+                                MaNghiGac = Guid.NewGuid().ToString(),
+                                MaHocVien = MaHocVien,
+                                NgayBatDau = DateTime.Now.AddDays(-30),
+                                NgayKetThuc = DateTime.Now,
+                                SlgacBatDau = hocVien.SoLanGac ?? 0,
+                                SlgacKetThuc = soLanGacMoi,
+                                LyDo = "Kích hoạt lại tự động",
+                                NguoiCapNhat = User.Identity?.Name ?? "admin"
+                            };
+
+                            _context.Add(newLichSu);
+                            await _context.SaveChangesAsync();
+                        }
+
+                        transaction.Commit();
+
+                        return Json(new { success = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        return Json(new { success = false, message = ex.Message });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
+
 }
