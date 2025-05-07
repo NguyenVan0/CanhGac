@@ -132,37 +132,52 @@
                                             <td class="text-center">
                                                 @(item.NgaySinh.HasValue ? item.NgaySinh.Value.Date.ToShortDateString() : string.Empty)
                                             <td>
-                                                    @item.GioiTinh
+                                                @item.GioiTinh
                                             </td>
                                             <td class="text-center">
-                                                    @(item.Gac.HasValue ? (item.Gac.Value ? "Gác" : "Nghỉ gác") : string.Empty)
+                                                @(item.Gac.HasValue ? (item.Gac.Value ? "Gác" : "Nghỉ gác") : string.Empty)
                                             </td>
-
+                                
                                             <td class="text-center">
-                                                    @item.SoLanGac
-                                            </td>
-                                            <td class="text-center">
-                                                    @(item.MaCapBacNavigation != null ? item.MaCapBacNavigation.TenCapBac : string.Empty)
+                                                @item.SoLanGac
                                             </td>
                                             <td class="text-center">
-                                                    @(item.MaChucVuNavigation != null ? item.MaChucVuNavigation.TenChucVu : string.Empty)
+                                                @(item.MaCapBacNavigation != null ? item.MaCapBacNavigation.TenCapBac : string.Empty)
                                             </td>
                                             <td class="text-center">
-                                                    @(item.MaDaiDoiNavigation != null ? item.MaDaiDoiNavigation.TenDonVi : string.Empty)
+                                                @(item.MaChucVuNavigation != null ? item.MaChucVuNavigation.TenChucVu : string.Empty)
                                             </td>
-
+                                            <td class="text-center">
+                                                @(item.MaDaiDoiNavigation != null ? item.MaDaiDoiNavigation.TenDonVi : string.Empty)
+                                            </td>
+                                
                                             <td>
-                                                <a asp-action="Details" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-info btn-sm">Xem chi tiết</a>
-
-                                                    @if (quanLyDuocHocVien)
+                                                <!-- Tất cả người dùng đều thấy nút xem chi tiết -->
+                                                <button type="button" class="btn btn-info btn-sm btn-chi-tiet" data-mahocvien="@item.MaHocVien">Xem chi tiết</button>
+                                                
+                                                <!-- Chỉ hiển thị nút quản lý gác nếu người dùng có quyền -->
+                                                @if (quanLyDuocHocVien)
+                                                {
+                                                    @if (item.Gac == true)
                                                     {
-                                                    <a asp-action="Edit" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-success btn-sm">Chỉnh sửa</a>
-                                                    <a asp-action="Delete" asp-route-id="@item.MaHocVien" asp-route-MaDaiDoi="@ViewBag.CurrentMaDaiDoi" asp-route-page="@ViewBag.CurrentPage" asp-route-MaID="@ViewBag.CurrentMaHV" asp-route-TenHV="@ViewBag.CurrentTenHV" asp-route-CapBac="@ViewBag.CurrentCapbac" asp-route-GioiTinh="@ViewBag.CurrentGioiTinh" class="btn btn-danger btn-sm">Xóa</a>
+                                                        <button type="button" class="btn btn-warning btn-sm btn-tam-nghi"
+                                                                data-mahocvien="@item.MaHocVien"
+                                                                data-tenhocvien="@item.TenHocVien">
+                                                            Tạm nghỉ gác
+                                                        </button>
                                                     }
+                                                    else
+                                                    {
+                                                        <button type="button" class="btn btn-primary btn-sm btn-kich-hoat"
+                                                                data-mahocvien="@item.MaHocVien"
+                                                                data-tenhocvien="@item.TenHocVien">
+                                                            Kết thúc nghỉ gác
+                                                        </button>
+                                                    }
+                                                }
                                             </td>
                                         </tr>
                                     }
-
                                 }
                             </tbody>
                         </table>
