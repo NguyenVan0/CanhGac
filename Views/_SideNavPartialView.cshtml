@@ -5,9 +5,12 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="~/Admin" class="brand-link">
-        <img src="~/adminassets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">Canh gác</span>
+        <img src="~/adminassets/dist/img/AdminLTELogo.png" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+        <span class="brand-text font-weight-light">
+            Canh gác
+        </span>
     </a>
+
 
     <!-- Sidebar -->
     <div class="sidebar">
@@ -16,41 +19,36 @@
         <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                <!-- Add icons to the links using the .nav-icon class
-                     with font-awesome or any other icon font library -->
+
                 <li class="nav-item">
                     <a asp-controller="DonVis" asp-action="Index" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <i class="nav-icon fas fa-users"></i>
                         <p>Danh sách đại đội</p>
                     </a>
                 </li>
+
                 @await Component.InvokeAsync("DaiDoiMenu")
+
                 <li class="nav-item">
                     <a href="~/ThongTinGacs" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
-
-                        <p>
-                            Lịch gác
-                         
-                        </p>
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>Lịch gác</p>
                     </a>
-                  
                 </li>
 
                 @if (!isTieuDoan)
                 {
                     <li class="nav-item">
                         <a href="~/PhanCongHocVien" class="nav-link">
-                            <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>
-                                Phân Công Học Viên
-                            </p>
+                            <i class="nav-icon fas fa-user-check"></i>
+                            <p>Phân Công Học Viên</p>
                         </a>
                     </li>
                 }
+
                 <li class="nav-item">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <i class="nav-icon fas fa-shield-alt"></i>
                         <p>
                             Kiểm tra gác
                             <i class="right fas fa-angle-left"></i>
@@ -59,23 +57,22 @@
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             <a href="~/KiemTraGac" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
+                                <i class="far fa-dot-circle nav-icon"></i>
                                 <p>Quản lí vi phạm</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="~/Roles" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
+                            <a href="~/KiemTraGac/LSGac" class="nav-link">
+                                <i class="far fa-history nav-icon"></i>
                                 <p>Lịch sử kiểm tra gác</p>
                             </a>
                         </li>
-
                     </ul>
                 </li>
 
                 <li class="nav-item">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <i class="nav-icon fas fa-cogs"></i>
                         <p>
                             Quản lý hệ thống
                             <i class="right fas fa-angle-left"></i>
@@ -84,38 +81,34 @@
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             <a href="~/Accounts1" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
+                                <i class="fas fa-user-cog nav-icon"></i>
                                 <p>Quản lí tài khoản</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="~/Roles" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
+                                <i class="fas fa-key nav-icon"></i>
                                 <p>Quản lí quyền truy cập</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="~/Accounts/ChangePassword" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
+                                <i class="fas fa-lock nav-icon"></i>
                                 <p>Thay đổi mật khẩu</p>
                             </a>
                         </li>
-
                     </ul>
                 </li>
-             
 
-                <li class="nav-item ">
+                <li class="nav-item">
                     <a href="/dang-xuat.html" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
-                        <p>
-                            Đăng xuất
-                        </p>
+                        <i class="nav-icon fas fa-sign-out-alt"></i>
+                        <p>Đăng xuất</p>
                     </a>
-
                 </li>
             </ul>
         </nav>
+
         <!-- /.sidebar-menu -->
     </div>
     <!-- /.sidebar -->

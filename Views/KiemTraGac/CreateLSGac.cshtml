@@ -1,0 +1,69 @@
+﻿@model CanhGac.Models.KiemTraGac
+@{
+    ViewData["Title"] = "Thêm mới kiểm tra gác";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="text-center text-primary fw-bold mb-4">Thêm kiểm tra gác</h2>
+
+<div class="container">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-5">
+            <form asp-action="CreateLSGac" method="post" class="row g-4">
+                <div class="col-md-6" style="margin-top: 25px">
+                    <label class="form-label fw-semibold">Sỹ quan kiểm tra</label>
+                    <select asp-for="MaSqkt" asp-items="ViewBag.SQKTList" class="form-select">
+                        <option value="">-- Chọn sĩ quan kiểm tra --</option>
+                    </select>
+
+
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Ngày kiểm tra</label>
+                    <input asp-for="Ngay" type="date" class="form-control" />
+                </div>
+
+                <div class="col-md-6" style="margin-top: 40px">
+                    <label class="form-label fw-semibold">Ca gác</label>
+                    <select asp-for="CaGac" class="form-select">
+                        <option value="19:00:00">19:00 - 20:30</option>
+                        <option value="20:30:00">20:30 - 22:00</option>
+                        <option value="22:00:00">22:00 - 23:00</option>
+                        <option value="23:00:00">23:00 - 00:00</option>
+                        <option value="00:00:00">00:00 - 01:00</option>
+                        <option value="01:00:00">01:00 - 02:00</option>
+                        <option value="02:00:00">02:00 - 03:00</option>
+                        <option value="03:00:00">03:00 - 04:00</option>
+                        <option value="04:00:00">04:00 - 05:00</option>
+                    </select>
+
+                </div>
+                <div class="col-md-6" style="margin-top: 15px">
+                    <label class="form-label fw-semibold">Trạng thái</label>
+                    <input asp-for="TrangThai" class="form-control" placeholder="VD: Đúng quy định" />
+                </div>
+
+                <div class="col-md-6" style="margin-top: 25px">
+                    <label class="form-label fw-semibold">Nhiệm vụ học viên</label>
+                    <select asp-for="NhiemVuHocVien" asp-items="ViewBag.NhiemVuList" class="form-select"></select>
+                </div>
+                <div class="col-md-6" style="margin-top: 25px">
+                    <label class="form-label fw-semibold">Vi phạm (nếu có)</label>
+                    <select asp-for="MaViPham" asp-items="ViewBag.ViPhamList" class="form-select">
+                        <option value="">-- Không vi phạm --</option>
+                    </select>
+                </div>
+
+                <div class="col-12 d-flex justify-content-center mt-4">
+                    <button type="submit" class="btn btn-success btn-lg px-5">
+                        Lưu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
