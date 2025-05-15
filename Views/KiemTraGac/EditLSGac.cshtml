@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Chỉnh sửa kiểm tra gác";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    bool isTieuDoan = User.IsInRole("Tiểu đoàn");
 }
 
 <h2 class="text-center text-primary fw-bold mb-4">Chỉnh sửa kiểm tra gác</h2>
@@ -15,9 +17,34 @@
 
                 <div class="col-md-6" style="margin-top: 25px">
                     <label class="form-label fw-semibold">Sỹ quan kiểm tra</label>
-                    <select asp-for="MaSqkt" asp-items="ViewBag.SQKTList" class="form-select">
+
+                    <select name="MaSqkt" class="form-select">
                         <option value="">-- Chọn sĩ quan kiểm tra --</option>
+                        @Html.Raw(GetOptionsSQKT(Model.MaSqkt, (List<CanhGac.Models.SyQuanKiemTra>)ViewBag.SQKTList, ViewBag.Role))
                     </select>
+
+                    @functions {
+                        // Hàm tạo html option dưới dạng chuỗi, có selected + disabled
+                        private string GetOptionsSQKT(int? selectedMaSqkt, List<CanhGac.Models.SyQuanKiemTra> sqList, string role)
+                        {
+                            var sb = new System.Text.StringBuilder();
+                            foreach (var sq in sqList)
+                            {
+                                bool isDisabled = false;
+
+                                if (role == "Đại đội" &&
+                                (sq.NghiepVu.Contains("Trực ban tác chiến")))
+                                    isDisabled = true;
+
+                                string selectedAttr = (selectedMaSqkt == sq.MaSqkt) ? " selected" : "";
+                                string disabledAttr = isDisabled ? " disabled" : "";
+
+                                sb.Append($"<option value='{sq.MaSqkt}'{selectedAttr}{disabledAttr}>{sq.NghiepVu}</option>");
+                            }
+                            return sb.ToString();
+                        }
+                    }
+
                 </div>
 
                 <div class="col-md-6">

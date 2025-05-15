@@ -36,9 +36,9 @@ namespace MyPhamCheilinus.Controllers
                                join cg in db.CaGacs on pcg.MaCaGac equals cg.MaCaGac
                                join vg in db.VongGacs on nv.MaVongGac equals vg.MaVongGac
                                where pcg.Ngay.Date == ngay.Date
-                         && (string.IsNullOrEmpty(TenHV) || hv.TenHocVien.Contains(TenHV))
-                         && (string.IsNullOrEmpty(NhiemVu) || nv.TenNhiemVu.Contains(NhiemVu))
-                         && (string.IsNullOrEmpty(VongGac) || vg.TenVongGac.Contains(VongGac))
+                                     && (string.IsNullOrEmpty(TenHV) || hv.TenHocVien.Contains(TenHV))
+                                     && (string.IsNullOrEmpty(NhiemVu) || nv.TenNhiemVu.Contains(NhiemVu))
+                                     && (string.IsNullOrEmpty(VongGac) || vg.TenVongGac.Contains(VongGac))
                                orderby cg.MaCaGac
                                select new PCGacViewModel
                                {
@@ -49,8 +49,9 @@ namespace MyPhamCheilinus.Controllers
                                    TenVongGac = vg.TenVongGac,
                                    Ngay = ngay,
                                    TuGio = TimeSpan.Parse(cg.TuGio.ToString()),
-                                   DenGio = TimeSpan.Parse(cg.DenGio.ToString())
+                                   DenGio = TimeSpan.Parse(cg.DenGio.ToString()),
                                }).ToList();
+
 
 
             if (queryResult.Count == 0)
@@ -104,18 +105,31 @@ namespace MyPhamCheilinus.Controllers
         {
             try
             {
-                var ngayParameter = new SqlParameter("@Ngay", ngay);
+                var tenDonViNguoiDung = User.Identity.Name;
 
-                // Gọi stored procedure PhanCongGac bằng ExecuteSqlRaw
+                // Tìm tên đơn vị tương ứng với ngày được chọn
+                var tenDonViTuNgay = db.ThongTinGacs
+                    .Where(t => t.Ngay.Date == ngay.Date)
+                    .Select(t => t.MaDonViNavigation.TenDonVi)
+                    .FirstOrDefault();
+
+                // So sánh tên đơn vị của người dùng với đơn vị phân công
+                if (tenDonViNguoiDung != tenDonViTuNgay)
+                {
+                    return Forbid(); // Trả về 403 nếu không trùng đơn vị
+                }
+
+                var ngayParameter = new SqlParameter("@Ngay", ngay);
                 db.Database.ExecuteSqlRaw("EXEC PhanCongGac @Ngay", ngayParameter);
 
-                return RedirectToAction("Index"); // Trả về kết quả thành công
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Internal Server Error"); // Trả về lỗi nếu xảy ra exception
+                return StatusCode(500, "Internal Server Error");
             }
         }
+
 
 
         [HttpPost]

@@ -161,13 +161,17 @@ namespace CanhGac.Controllers
             ViewBag.ViPhamList = new SelectList(_context.ViPhams.ToList(), "MaViPham", "TenViPham");
             ViewBag.CaGacList = new SelectList(_context.CaGacs.ToList(), "MaCaGac", "TuGio");
 
-            var list = _context.SyQuanKiemTras
-     .Select(sq => new { sq.MaSqkt, sq.NghiepVu })
-     .ToList();
+            var list = _context.SyQuanKiemTras.ToList();
 
-            ViewBag.SQKTList = new SelectList(list, "MaSqkt", "NghiepVu");
+            ViewBag.SQKTList = list; // truyền list dạng đối tượng, không phải SelectList
+
+            ViewBag.Role = User.IsInRole("Tiểu đoàn") ? "Tiểu đoàn" :
+                           User.IsInRole("Đại đội") ? "Đại đội" :
+                           "Khác";
+
             return View();
         }
+
 
         // POST: KiemTraGac/Create
         [HttpPost]
@@ -177,8 +181,8 @@ namespace CanhGac.Controllers
             Console.WriteLine($"MaSqkt nhận được: {kiemTraGac.MaSqkt}"); // 👈 kiểm tra
 
             _context.Add(kiemTraGac);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(LSGac));
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(LSGac));
         }
         public async Task<IActionResult> DetailLSGac(int id)
         {
@@ -216,7 +220,11 @@ namespace CanhGac.Controllers
 
             ViewBag.NhiemVuList = new SelectList(_context.NhiemVus.ToList(), "MaNhiemVu", "TenNhiemVu");
             ViewBag.ViPhamList = new SelectList(_context.ViPhams.ToList(), "MaViPham", "TenViPham");
-            ViewBag.SQKTList = new SelectList(_context.SyQuanKiemTras.ToList(), "MaSqkt", "NghiepVu");
+            ViewBag.SQKTList = _context.SyQuanKiemTras.ToList();
+
+            ViewBag.Role = User.IsInRole("Tiểu đoàn") ? "Tiểu đoàn" :
+               User.IsInRole("Đại đội") ? "Đại đội" : "Khác";
+
 
             return View(kiemTraGac);
         }
@@ -231,24 +239,24 @@ namespace CanhGac.Controllers
                 return NotFound();
             }
 
-                try
+            try
+            {
+                _context.Update(kiemTraGac);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!KiemTraGacExists(kiemTraGac.MaKTG))
                 {
-                    _context.Update(kiemTraGac);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+                else
                 {
-                    if (!KiemTraGacExists(kiemTraGac.MaKTG))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
-                return RedirectToAction(nameof(LSGac));
-          
+            }
+            return RedirectToAction(nameof(LSGac));
+
         }
 
         private bool KiemTraGacExists(int id)
