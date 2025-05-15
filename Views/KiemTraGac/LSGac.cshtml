@@ -3,6 +3,9 @@
 @{
     ViewData["Title"] = "Danh sách kiểm tra gác";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var isDaiDoi = User.IsInRole("Đại đội"); // hoặc ViewBag.LoaiTaiKhoan == "DaiDoi"
+
 }
 
 <h2 class="text-center mt-3 mb-4">DANH SÁCH KIỂM TRA GÁC</h2>
@@ -37,6 +40,7 @@
             {
                 foreach (var item in Model)
                 {
+
                     <tr>
                         <td>@item.NghiepVu</td>
                         <td>@item.Ngay.ToString("yyyy-MM-dd")</td>
@@ -47,17 +51,26 @@
                         <td>@item.TenNhiemVu</td>
                         <td>
                             <div class="d-flex justify-content-center">
-                                <a asp-action="EditLSGac" asp-route-id="@item.MaSQKT" class="btn btn-success btn-sm mx-1">Chỉnh sửa</a>
-                                <a asp-action="DetailLSGac" asp-route-id="@item.MaSQKT" class="btn btn-info btn-sm mx-1">Xem chi tiết</a>
-                                <form asp-action="DeleteLSGac" asp-route-MaKTG="@item.MaKTG" method="post" style="display:inline">
-                                    <button type="submit" class="btn btn-danger btn-sm mx-1"
-                                            onclick="return confirm('Bạn có chắc chắn muốn xoá không?')">
-                                        Xoá
-                                    </button>
-                                </form>
+                                @if (!isDaiDoi || item.NghiepVu == "Cán bộ đại đội" || item.NghiepVu == "Trực ban tiểu đoàn")
+                                {
+                                    <a asp-action="EditLSGac" asp-route-id="@item.MaKTG" class="btn btn-success btn-sm mx-1">Chỉnh sửa</a>
+                                }
 
+                                <a asp-action="DetailLSGac" asp-route-id="@item.MaKTG" class="btn btn-info btn-sm mx-1">Xem chi tiết</a>
+
+                                @if (!isDaiDoi || item.NghiepVu == "Cán bộ đại đội" || item.NghiepVu == "Trực ban tiểu đoàn")
+                                {
+                                    <form asp-action="DeleteLSGac" asp-route-MaKTG="@item.MaKTG" method="post" style="display:inline">
+                                        <button type="submit" class="btn btn-danger btn-sm mx-1"
+                                                onclick="return confirm('Bạn có chắc chắn muốn xoá không?')">
+                                            Xoá
+                                        </button>
+                                    </form>
+                                }
                             </div>
                         </td>
+
+
                     </tr>
                 }
             }

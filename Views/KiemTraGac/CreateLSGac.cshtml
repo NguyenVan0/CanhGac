@@ -12,9 +12,38 @@
             <form asp-action="CreateLSGac" method="post" class="row g-4">
                 <div class="col-md-6" style="margin-top: 25px">
                     <label class="form-label fw-semibold">Sỹ quan kiểm tra</label>
-                    <select asp-for="MaSqkt" asp-items="ViewBag.SQKTList" class="form-select">
+                    <label class="form-label fw-semibold">Sỹ quan kiểm tra</label>
+
+                    <select name="MaSqkt" class="form-select">
                         <option value="">-- Chọn sĩ quan kiểm tra --</option>
+                        @Html.Raw(GetOptionsSQKT(null, (List<CanhGac.Models.SyQuanKiemTra>)ViewBag.SQKTList, (string)ViewBag.Role))
                     </select>
+
+
+                    @functions {
+                        private string GetOptionsSQKT(int? selectedMaSqkt, List<CanhGac.Models.SyQuanKiemTra> sqList, string role)
+                        {
+                            var sb = new System.Text.StringBuilder();
+
+                            if (sqList == null || sqList.Count == 0)
+                                return ""; // Trường hợp danh sách null hoặc rỗng
+
+                            foreach (var sq in sqList)
+                            {
+                                bool isDisabled = false;
+
+                                if (role == "Đại đội" && sq.NghiepVu.Contains("Trực ban tác chiến"))
+                                    isDisabled = true;
+
+                                string selectedAttr = (selectedMaSqkt.HasValue && selectedMaSqkt.Value == sq.MaSqkt) ? " selected" : "";
+                                string disabledAttr = isDisabled ? " disabled" : "";
+
+                                sb.Append($"<option value='{sq.MaSqkt}'{selectedAttr}{disabledAttr}>{sq.NghiepVu}</option>");
+                            }
+                            return sb.ToString();
+                        }
+                    }
+
 
 
                 </div>
