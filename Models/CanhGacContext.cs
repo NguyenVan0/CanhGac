@@ -176,29 +176,38 @@ public partial class CanhGacContext : DbContext
 
         modelBuilder.Entity<KiemTraGac>(entity =>
         {
-            entity.HasKey(e => new { e.MaSqkt, e.Ngay });
+            entity.HasKey(e => e.MaKTG); // ✅ MaKTG là PRIMARY KEY và IDENTITY
 
             entity.ToTable("KiemTraGac");
 
-            entity.Property(e => e.MaSqkt).HasColumnName("MaSQKT");
+            entity.Property(e => e.MaKTG)
+                  .HasColumnName("MaKTG")
+                  .ValueGeneratedOnAdd(); // ✅ Báo cho EF đây là cột tự tăng
+
+            entity.Property(e => e.MaSqkt).HasColumnName("MaSqkt");
             entity.Property(e => e.Ngay).HasColumnType("date");
             entity.Property(e => e.TrangThai).HasMaxLength(200);
 
-            entity.HasOne(d => d.MaSqktNavigation).WithMany(p => p.KiemTraGacs)
+            // Khóa ngoại
+            entity.HasOne(d => d.MaSqktNavigation)
+                .WithMany(p => p.KiemTraGacs)
                 .HasForeignKey(d => d.MaSqkt)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_KiemTraGac_SyQuanKiemTra");
 
-            entity.HasOne(d => d.MaViPhamNavigation).WithMany(p => p.KiemTraGacs)
+            entity.HasOne(d => d.MaViPhamNavigation)
+                .WithMany(p => p.KiemTraGacs)
                 .HasForeignKey(d => d.MaViPham)
                 .HasConstraintName("FK_KiemTraGac_ViPham");
 
-            entity.HasOne(d => d.NgayNavigation).WithMany(p => p.KiemTraGacs)
+            entity.HasOne(d => d.NgayNavigation)
+                .WithMany(p => p.KiemTraGacs)
                 .HasForeignKey(d => d.Ngay)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_KiemTraGac_ThongTinGac");
 
-            entity.HasOne(d => d.NhiemVuHocVienNavigation).WithMany(p => p.KiemTraGacs)
+            entity.HasOne(d => d.NhiemVuHocVienNavigation)
+                .WithMany(p => p.KiemTraGacs)
                 .HasForeignKey(d => d.NhiemVuHocVien)
                 .HasConstraintName("FK_KiemTraGac_NhiemVu");
         });
@@ -350,7 +359,7 @@ public partial class CanhGacContext : DbContext
 
             entity.Property(e => e.MaSqkt)
                 .ValueGeneratedNever()
-                .HasColumnName("MaSQKT");
+                .HasColumnName("MaSqkt");
             entity.Property(e => e.NghiepVu).HasMaxLength(50);
         });
 

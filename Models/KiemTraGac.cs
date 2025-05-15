@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CanhGac.Models;
 
 public partial class KiemTraGac
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int MaKTG { get; set; }
     public int MaSqkt { get; set; }
 
     public DateTime Ngay { get; set; }
 
-    public TimeSpan? Gio { get; set; }
+    public TimeSpan? CaGac { get; set; }
 
     public string? TrangThai { get; set; }
 

@@ -1,0 +1,57 @@
+﻿@model CanhGac.Models.KiemTraGac
+
+@{
+    ViewData["Title"] = "Chi tiết kiểm tra gác";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0"><i class="fas fa-info-circle"></i> Thông tin chi tiết kiểm tra gác</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3 text-end">Sĩ quan kiểm tra:</dt>
+                <dd class="col-sm-9">@Model.MaSqktNavigation?.NghiepVu</dd>
+
+                <dt class="col-sm-3 text-end">Ngày kiểm tra:</dt>
+                <dd class="col-sm-9">@Model.Ngay.ToString("yyyy-MM-dd")</dd>
+
+                <dt class="col-sm-3 text-end">Ca gác:</dt>
+                <dd class="col-sm-9">@Model.CaGac?.ToString(@"hh\:mm")</dd>
+
+                <dt class="col-sm-3 text-end">Trạng thái:</dt>
+                <dd class="col-sm-9">@Model.TrangThai</dd>
+
+                <dt class="col-sm-3 text-end">Nhiệm vụ học viên:</dt>
+                <dd class="col-sm-9">@Model.NhiemVuHocVienNavigation?.TenNhiemVu</dd>
+
+                <dt class="col-sm-3 text-end">Vi phạm:</dt>
+                <dd class="col-sm-9">
+                    @if (Model.MaViPhamNavigation != null && Model.MaViPhamNavigation.TenViPham != "Không vi phạm")
+                    {
+                        @Model.MaViPhamNavigation.TenViPham
+                    }
+                    else
+                    {
+                        @:Không vi phạm
+                    }
+                </dd>
+
+            </dl>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            <a asp-action="LSGac" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+            <a asp-action="EditLSGac" asp-route-id="@Model.MaKTG" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Chỉnh sửa
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
