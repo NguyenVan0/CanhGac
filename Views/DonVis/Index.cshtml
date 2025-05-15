@@ -3,71 +3,89 @@
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-
     bool isTieuDoan = User.IsInRole("Tiểu đoàn");
 }
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    <style>
 
-<h1>DANH SÁCH CÁC ĐẠI ĐỘI:</h1>
+        h2 {
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>DANH SÁCH ĐẠI ĐỘI</h2>
+    <!-- Other content of your CSHTML file -->
+</body>
+</html>
 
-<p>
-    <div class="col-lg-13 text-right">
-        <a class="btn btn-primary" asp-action="Create"><i class="anticon anticon-plus-circle m-r-5"></i> <span>Thêm đại đội</span></a>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    @* <div class="card-header"> *@
+                    @*     <div class="card-tools"> *@
+                    @*         <a class="btn btn-primary btn-sm" asp-action="Create"> *@
+                    @*             <i class="anticon anticon-plus-circle m-r-5"></i> Thêm đại đội *@
+                    @*         </a> *@
+                    @*     </div> *@
+                    @* </div> *@
+                    <div class="card-body">
+                        <table id="donViTable" class="table table-bordered table-hover">
+                            <thead>
+                                <tr class="text-center">
+                                    <th>Mã đơn vị</th>
+                                    <th>Tên đơn vị</th>
+                                    <th>Quân số</th>
+                                    <th>Gác</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="text-center">@Html.DisplayFor(modelItem => item.MaDonVi)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.TenDonVi)</td>
+                                        <td class="text-center">@Html.DisplayFor(modelItem => item.QuanSo)</td>
+                                        <td class="text-center">
+                                            @if (isTieuDoan)
+                                            {
+                                                <input type="checkbox"
+                                                @(item.Gac == true ? "checked" : "")
+                                                       onclick="updateGac('@item.MaDonVi', this.checked)" />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox"
+                                                @(item.Gac == true ? "checked" : "")
+                                                       disabled />
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <a asp-action="Details" asp-route-id="@item.MaDonVi" class="btn btn-info btn-sm">Xem chi tiết</a>
+                                            @if (isTieuDoan)
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@item.MaDonVi" class="btn btn-primary btn-sm">Chỉnh sửa</a>
+                                                <a asp-action="Delete" asp-route-id="@item.MaDonVi" class="btn btn-danger btn-sm">Xóa</a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Mã đơn vị:
-            </th>
-            <th>
-                Tên đơn vị:
-            </th>
-            <th>
-               Quân số
-            </th>
-            <th>Gác</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model) {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MaDonVi)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TenDonVi)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.QuanSo)
-                </td>
-                <td>
-                    @if (isTieuDoan)
-                    {
-                        <input type="checkbox"
-                        @(item.Gac == true ? "checked" : "")
-                               onclick="updateGac('@item.MaDonVi', this.checked)" />
-                    }
-                    else
-                    {
-                        <input type="checkbox"
-                        @(item.Gac == true ? "checked" : "")
-                               disabled />
-                    }
-                </td>
-                <td class="text-right">
-                    <a asp-action="Details" asp-route-id="@item.MaDonVi" class="btn btn-info btn-sm">Xem chi tiết</a>
-                    @if (isTieuDoan)
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.MaDonVi" class="btn btn-primary btn-sm">Chỉnh sửa</a>
-                        <a asp-action="Delete" asp-route-id="@item.MaDonVi" class="btn btn-danger btn-sm">Xóa</a>
-                    }
-                </td>
-            </tr>
-}
-    </tbody>
-</table>
+</section>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 @section Scripts {
@@ -78,7 +96,7 @@
                 type: 'POST',
                 data: {
                     maDonVi: maDonVi,
-                    status: status  // dùng biến được truyền vào
+                    status: status
                 },
                 success: function () {
                     console.log("✅ Đã cập nhật gác cho " + maDonVi);
@@ -88,6 +106,5 @@
                 }
             });
         }
-
     </script>
 }
